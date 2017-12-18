@@ -8,19 +8,18 @@
 import re
 import MySQLdb
 from scrapy.exceptions import DropItem
+import pandas as pd
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
-
 INDEX = 0
 
 class Jx3NewsPipeline(object):
     def __init__(self):
         try:
-            self.db = MySQLdb.connect(host="192.168.84.128", user="root", passwd="root", port=3306, db="test", charset="utf8")
+            self.db = MySQLdb.connect(host="192.168.84.129", user="test", passwd="test", port=3306, db="test", charset="utf8")
             self.cursor = self.db.cursor()
             print "数据库连接成功!"
-
         except:
             print "数据库连接失败!"
 
@@ -32,22 +31,20 @@ class Jx3NewsPipeline(object):
         mydate = item['date']
         abstract = item['abstract']
 
+
         # print url
         # par = re.match(r'[^\.][0-9A-Za-z]+(?=\.com)', 'http://jx3.xoyo.com', re.I|re.M|re.S|re.IGNORECASE)
         # print par
 
         if mydate != '' and abstract != '':
             param = (mydate, url, title, abstract)
-
             sql = "insert into db_xoyo (update_date, url, title, abstract) values(%s, %s, %s, %s)"
             self.cursor.execute(sql, param)
-
             INDEX = INDEX + 1
 
             if INDEX % 10 == 0:
                 print '提交数据库！'
                 self.db.commit()
-
         else:
             raise DropItem(item)
 
